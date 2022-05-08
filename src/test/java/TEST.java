@@ -1,4 +1,6 @@
 
+import CollectTest.Person;
+import CollectTest.PersonT;
 import INTERFACE.FanxingInterface;
 import STATIC.StaticGeneral;
 import StringTestFather.StringTestFather;
@@ -13,7 +15,7 @@ import CollectTest.IntegerFanxing;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-public class TEST {
+public class TEST{
 
     @Test
     public void test() {
@@ -130,6 +132,61 @@ public class TEST {
 
 
     }
+
+
+    @Test
+    public  void test7() {
+        PersonT<Person> p = new PersonT<>();
+        p.name = new Person[5];
+
+        for (int i = 0; i < 5; i++) {
+            p.name[i] = new Person(i + 1);
+        }
+
+        for (Person person : p.name) {
+            System.out.println(person.a);
+        }
+        //本来可以写在Person里面，这样只用调用Person的迭代器就可以了
+        //现在用一个匿名类去实现这个构造器
+
+        //itearable 是对iterator的又一次包装，确保每次生成一个iterable都可以重置迭代器
+        //myIterator 是实现了 迭代器的子类，父类引用指向子类对象
+        Iterator<Person> iterator = new Iterable<Person>() {
+            @Override
+            public Iterator<Person> iterator() {
+                //每次调用都生成这个子类，可以重置迭代器，否则就只能使用一次
+                return new myIterator();
+            }
+
+            //匿名类 的内部类
+            //这个内部类实现了迭代器ITERATOR
+            class myIterator implements Iterator<Person> {
+                //索引
+                private int index = 0;
+
+                @Override
+                public boolean hasNext() {
+                    return index != p.name.length;
+                }
+
+                @Override
+                public Person next() {
+                    Person person = p.name[index];
+                    index += 1;
+                    return person;
+                }
+            }
+        }.iterator();
+
+        while (iterator.hasNext()){
+            System.out.println(iterator.next().a);
+        }
+        //最正确的方式，是在原类中继承iteratorable接口 用一个内部类去实现iterator接口，返回真正的迭代器,每次重置索引，且每个迭代器互不影响
+
+    }
 }
+
+
+
 
 
