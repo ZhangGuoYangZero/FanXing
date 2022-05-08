@@ -12,10 +12,12 @@ import ChaChu.ChaChu;
 import string.string;
 import CollectTest.IntegerFanxing;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeSet;
 
-public class TEST{
+public class TEST {
 
     @Test
     public void test() {
@@ -70,6 +72,7 @@ public class TEST{
         FanxingInterface<String> fanxingInterface = new FanxingInterface<>() {
             //跟普通类一样，一旦指定了泛型的类型，就会改变一切跟泛型有关的东西
             int a = 5;
+
             @Override
             public void TestInterface(String name) {
                 System.out.println("--------泛型1");
@@ -79,7 +82,7 @@ public class TEST{
             public <B> int TestInterface2(String name, B age) {
                 System.out.println(name);
                 System.out.println(age);
-               // System.out.println(age + a); 泛型不能用于各种运算
+                // System.out.println(age + a); 泛型不能用于各种运算
                 System.out.println(this.a);
                 return 5;
             }
@@ -88,7 +91,7 @@ public class TEST{
 
         fanxingInterface.TestInterface("name");
         //这里还是父类引用 指向子类对象,由于是匿名类 也不能使用向下
-        System.out.println(fanxingInterface.TestInterface2("name1",5.5));
+        System.out.println(fanxingInterface.TestInterface2("name1", 5.5));
     }
 
 
@@ -98,7 +101,7 @@ public class TEST{
         //第一个参数被super修饰 当前和当前的父类可以
         //es.test0("0",new general<Number,Object>());
         //第二给参数被extends修饰，当前和当前的子类可以，子类写在了下面
-        es.test0("0",new general<StringTestFather, string>());
+        es.test0("0", new general<StringTestFather, string>());
         //这样就可以
         // es.st = new StringTest<StringTestFather>();
         //这样就不可以
@@ -114,7 +117,7 @@ public class TEST{
     }
 
     @Test
-    public  void test6(){
+    public void test6() {
         //用一个有排序功能的treeSet 去存储
         TreeSet<IntegerFanxing> treeSet = new TreeSet<>();
         treeSet.add(new IntegerFanxing(5));
@@ -125,8 +128,8 @@ public class TEST{
 
         //获取一个 迭代器（interfx
         Iterator<IntegerFanxing> iterator = treeSet.iterator();
-        while ( iterator.hasNext()){
-            IntegerFanxing integerFanxing =  iterator.next();
+        while (iterator.hasNext()) {
+            IntegerFanxing integerFanxing = iterator.next();
             System.out.println(integerFanxing.n);
         }
 
@@ -134,56 +137,61 @@ public class TEST{
     }
 
 
-    @Test
-    public  void test7() {
-        PersonT<Person> p = new PersonT<>();
-        p.name = new Person[5];
+  /*  @Test//这是给失败的测试，不要用 一切来源object的泛型数组
+    public void test7() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+        PersonT<Person> p = new PersonT<Person>() {
+            private ArrayList<Person> name = super.name;
+            private int total;
 
-        for (int i = 0; i < 5; i++) {
-            p.name[i] = new Person(i + 1);
-        }
-
-        for (Person person : p.name) {
-            System.out.println(person.a);
-        }
-        //本来可以写在Person里面，这样只用调用Person的迭代器就可以了
-        //现在用一个匿名类去实现这个构造器
-
-        //itearable 是对iterator的又一次包装，确保每次生成一个iterable都可以重置迭代器
-        //myIterator 是实现了 迭代器的子类，父类引用指向子类对象
-        Iterator<Person> iterator = new Iterable<Person>() {
-            @Override
-            public Iterator<Person> iterator() {
-                //每次调用都生成这个子类，可以重置迭代器，否则就只能使用一次
-                return new myIterator();
+            {
+                Class c = Class.forName("java.util.ArrayList");
+                Field field = c.getField("elementData");
+                field.setAccessible(true);
+                Object[] object = (Object[])field.get(name);
+                this.total = object.length;
             }
 
-            //匿名类 的内部类
-            //这个内部类实现了迭代器ITERATOR
-            class myIterator implements Iterator<Person> {
-                //索引
+            //由于这是给匿名类 局部类拿不到父类的属性，所以强行重写
+
+
+            //来一个自定义的内部类
+
+            public Iterator<Person> Iterator() {
+                //因为每次都要新的迭代器
+                return new MyIterator();
+            }
+
+            //局部内部类(这个类是在test8里面的匿名类中出现的，无论怎么样都是局部类) 实现了iterator接口
+            class MyIterator implements Iterator<Person> {
                 private int index = 0;
 
                 @Override
                 public boolean hasNext() {
-                    return index != p.name.length;
+                    //这里不能用this 这个this会指向局部类
+                    return index != total;
                 }
 
                 @Override
                 public Person next() {
-                    Person person = p.name[index];
-                    index += 1;
+                    Person person = name.get(index);
+                    index++;
                     return person;
                 }
             }
-        }.iterator();
 
-        while (iterator.hasNext()){
+        };
+        for (int i = 0; i < 5; i++)
+            p.name.add(new Person(i + 1));
+
+        Iterator<Person> iterator = p.Iterator();
+        while (iterator.hasNext()) {
             System.out.println(iterator.next().a);
         }
-        //最正确的方式，是在原类中继承iteratorable接口 用一个内部类去实现iterator接口，返回真正的迭代器,每次重置索引，且每个迭代器互不影响
+
 
     }
+
+*/
 }
 
 
