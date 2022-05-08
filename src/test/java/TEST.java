@@ -8,6 +8,10 @@ import general.general;
 import org.junit.jupiter.api.Test;
 import ChaChu.ChaChu;
 import string.string;
+import CollectTest.IntegerFanxing;
+
+import java.util.Iterator;
+import java.util.TreeSet;
 
 public class TEST {
 
@@ -102,12 +106,30 @@ public class TEST {
 
         //设置了泛型的传递，stirng 也有一个泛型A， 这ES这个类中的ST成员的 变量格式
         //由于泛型是用 extends修饰的，在使用父类的引用指向子类的对象的时候，要NEW子类的对象符合父类的引用的泛型结构
-        
+
         es.st = new string<string>();
         System.out.println(es.st.getClass());
     }
 
+    @Test
+    public  void test6(){
+        //用一个有排序功能的treeSet 去存储
+        TreeSet<IntegerFanxing> treeSet = new TreeSet<>();
+        treeSet.add(new IntegerFanxing(5));
+        treeSet.add(new IntegerFanxing(2));
+        treeSet.add(new IntegerFanxing(4));
+        treeSet.add(new IntegerFanxing(1));
+        treeSet.add(new IntegerFanxing(3));
 
+        //获取一个 迭代器（interfx
+        Iterator<IntegerFanxing> iterator = treeSet.iterator();
+        while ( iterator.hasNext()){
+            IntegerFanxing integerFanxing =  iterator.next();
+            System.out.println(integerFanxing.n);
+        }
+
+
+    }
 }
 
 
